@@ -99,3 +99,7 @@ use atm;
 
 5. Ejecutan el script init.sql de la carpeta database.
 
+
+## Maquetado de interfaz gráfica
+
+
