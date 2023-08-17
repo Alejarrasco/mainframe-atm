@@ -1,3 +1,5 @@
+package bo.edu.ucb.sis213;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -11,6 +13,8 @@ public class MainMenuPanel extends JPanel {
     public MainMenuPanel(ATMFrame atmFrame) {
         this.atmFrame = atmFrame;
 
+        this.atmFrame.setApp(new App());//Por si acaso
+
         setLayout(new GridLayout(5, 1));
 
         JButton balanceButton = new JButton("Balance Inquiry");
@@ -22,28 +26,28 @@ public class MainMenuPanel extends JPanel {
         balanceButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle balance inquiry logic here
-                App.showSaldo();
+                app.showSaldo();
             }
         });
 
         depositButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle deposit logic here
-                App.realizarDeposito();
+                app.realizarDeposito();
             }
         });
 
         withdrawalButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle withdrawal logic here
-                App.realizarRetiro();
+                app.realizarRetiro();
             }
         });
 
         changePinButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle change PIN logic here
-                App.cambiarPIN();
+                app.cambiarPIN();
             }
         });
 

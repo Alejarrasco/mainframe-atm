@@ -1,3 +1,5 @@
+package bo.edu.ucb.sis213;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -10,7 +12,12 @@ public class LoginPanel extends JPanel {
     private ATMFrame atmFrame;
 
     public LoginPanel(ATMFrame atmFrame) {
+
+        
+
         this.atmFrame = atmFrame;
+
+        this.atmFrame.setApp(new App());//Por si acaso
 
         setLayout(new GridLayout(3, 2));
 
@@ -30,7 +37,8 @@ public class LoginPanel extends JPanel {
                 // Handle login logic here
                 // Verify username and PIN from the database
                 // If successful, switch to the main menu panel
-                if (App.loginAttempt(usernameField.getText(), pinField.getPassword()))
+                String pass = new String(pinField.getPassword());
+                if (app.loginAttempt(usernameField.getText(), Integer.parseInt(pass)))
                     atmFrame.showCard("mainMenu");
             }
         });

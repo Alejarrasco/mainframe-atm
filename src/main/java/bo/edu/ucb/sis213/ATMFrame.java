@@ -1,9 +1,13 @@
+package bo.edu.ucb.sis213;
+
 import javax.swing.*;
 import java.awt.CardLayout;
 
 public class ATMFrame extends JFrame {
     private CardLayout cardLayout;
     private JPanel cardPanel;
+
+    private App app;
 
     public ATMFrame() {
         setTitle("ATM Simulation");
@@ -21,5 +25,9 @@ public class ATMFrame extends JFrame {
 
     public void showCard(String cardName) {
         cardLayout.show(cardPanel, cardName);
+    }
+
+    public void setApp(App app_){
+        this.app = app_;
     }
 }

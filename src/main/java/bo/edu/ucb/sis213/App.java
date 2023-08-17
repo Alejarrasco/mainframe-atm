@@ -32,6 +32,17 @@ public class App {
         }
     }
 
+    public App(int userid) {
+        try {
+            connection = getConnection(); // Reemplaza esto con tu conexión real
+        } catch (SQLException ex) {
+            System.err.println("No se puede conectar a Base de Datos");
+            ex.printStackTrace();
+            System.exit(1);
+        }
+
+        usuarioId = userid;
+    }
 
     public static Connection getConnection() throws SQLException {
         String jdbcUrl = String.format("jdbc:mysql://%s:%d/%s", HOST, PORT, DATABASE);
@@ -76,7 +87,7 @@ public class App {
 
 
 
-    public static boolean validarPIN(Connection connection, String username, int pin) {
+    public boolean validarPIN(Connection connection, String username, int pin) {
         String query_verify = "SELECT pin FROM usuarios WHERE alias = ?";
         String query_get = "SELECT id, saldo FROM usuarios WHERE alias = ?";
         boolean f = false;
@@ -111,12 +122,12 @@ public class App {
     }
 
 
-    public static void showSaldo(){
+    public void showSaldo(){
         JOptionPane.showMessageDialog(null,"Su saldo actual es: $" + saldo);
     }
 
     
-    public static void realizarDeposito() {
+    public void realizarDeposito() {
         double cantidad = Double.parseDouble(JOptionPane.showInputDialog("Ingrese la cantidad a depositar: $"));
 
         if (cantidad <= 0) {
@@ -128,7 +139,7 @@ public class App {
         }
     }
 
-    public static void realizarRetiro() {
+    public void realizarRetiro() {
         double cantidad = Double.parseDouble(JOptionPane.showInputDialog("Ingrese la cantidad a retirar: $"));
 
         if (cantidad <= 0) {
@@ -142,7 +153,7 @@ public class App {
         }
     }
 
-    public static void cambiarPIN() {
+    public void cambiarPIN() {
         int pinIngresado = Integer.parseInt(JOptionPane.showInputDialog("Ingrese su PIN actual: "));
 
         if (pinIngresado == pinActual) {
@@ -162,7 +173,7 @@ public class App {
         }
     }
 
-    private static void updateSaldo(double cantidad, String operacion){
+    private void updateSaldo(double cantidad, String operacion){
         String query_insert = "INSERT INTO historico (usuario_id, tipo_operacion, cantidad) VALUES (?,?,?)";
         String query_update = "UPDATE usuario SET saldo = ? WHERE id = ?;";
         try{
@@ -198,7 +209,7 @@ public class App {
         
     }
 
-    private static void updatePIN(int nuevoPin){
+    private void updatePIN(int nuevoPin){
         String query_update = "UPDATE usuario SET pin = ? WHERE id = ?:";
 
         try{
