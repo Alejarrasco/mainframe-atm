@@ -30,7 +30,8 @@ public class LoginPanel extends JPanel {
                 // Handle login logic here
                 // Verify username and PIN from the database
                 // If successful, switch to the main menu panel
-                atmFrame.showCard("mainMenu");
+                if (loginAttempt(usernameField.getText(), pinField.getPassword()))
+                    atmFrame.showCard("mainMenu");
             }
         });
     }

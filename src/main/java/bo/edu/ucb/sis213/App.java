@@ -91,6 +91,11 @@ public class App {
         return false;
     }
 
+
+    public static void showSaldo(){
+        JOptionPane.showMessageDialog(null,"Su saldo actual es: $" + saldo);
+    }
+
     
     public static void realizarDeposito() {
         double cantidad = (double)JOptionPane.showInputDialog("Ingrese la cantidad a depositar: $");
@@ -99,7 +104,7 @@ public class App {
             JOptionPane.showMessageDialog(null,"Cantidad no válida.");
         } else {
             saldo += cantidad;
-            updateSaldo(cantidad, "DEPOSITO"); //TODO
+            updateSaldo(cantidad, "DEPOSITO");
             JOptionPane.showMessageDialog(null,"Depósito realizado con éxito. Su nuevo saldo es: $" + saldo);
         }
     }
@@ -113,7 +118,7 @@ public class App {
             JOptionPane.showMessageDialog(null,"Saldo insuficiente.");
         } else {
             saldo -= cantidad;
-            updateSaldo(cantidad, "RETIRO"); //TODO
+            updateSaldo(cantidad, "RETIRO");
             JOptionPane.showMessageDialog(null,"Retiro realizado con éxito. Su nuevo saldo es: $" + saldo);
         }
     }
@@ -128,7 +133,7 @@ public class App {
 
             if (nuevoPin == confirmacionPin) {
                 pinActual = nuevoPin;
-                updatePIN(nuevoPin); //TODO
+                updatePIN(nuevoPin);
                 JOptionPane.showMessageDialog(null,"PIN actualizado con éxito.");
             } else {
                 JOptionPane.showMessageDialog(null,"Los PINs no coinciden.", JOptionPane.ERROR_MESSAGE);

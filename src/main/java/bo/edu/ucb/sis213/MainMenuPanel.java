@@ -22,24 +22,28 @@ public class MainMenuPanel extends JPanel {
         balanceButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle balance inquiry logic here
+                showSaldo();
             }
         });
 
         depositButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle deposit logic here
+                realizarDeposito();
             }
         });
 
         withdrawalButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle withdrawal logic here
+                realizarRetiro();
             }
         });
 
         changePinButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle change PIN logic here
+                cambiarPIN();
             }
         });
 
