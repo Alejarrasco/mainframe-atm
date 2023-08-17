@@ -4,7 +4,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class MainMenuPanel extends JPanel {
-    private ATMFrame atmFrame;
+    //private ATMFrame atmFrame;
+
+    private App App = new App();
 
     public MainMenuPanel(ATMFrame atmFrame) {
         this.atmFrame = atmFrame;
