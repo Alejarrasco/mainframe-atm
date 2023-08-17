@@ -1,8 +1,10 @@
 package bo.edu.ucb.sis213;
 
-import java.sql.PreparedStatement;
+import java.sql.*;
 
 import javax.swing.JOptionPane;
+
+import java.sql.Connection;
 
 
 public class App {
@@ -17,7 +19,6 @@ public class App {
     private static final String USER = "root";
     private static final String PASSWORD = "123456";
     private static final String DATABASE = "atm";
-
     private static Connection connection = null;
 
     
@@ -31,15 +32,29 @@ public class App {
         }
     }
 
+
+    public static Connection getConnection() throws SQLException {
+        String jdbcUrl = String.format("jdbc:mysql://%s:%d/%s", HOST, PORT, DATABASE);
+        try {
+            // Asegúrate de tener el driver de MySQL agregado en tu proyecto
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            throw new SQLException("MySQL Driver not found.", e);
+        }
+
+        return DriverManager.getConnection(jdbcUrl, USER, PASSWORD);
+    }
+
     public double getSaldo(){
         return saldo;
     }
 
-    public boolean loginAttempt(String username, int PIN){
+    public boolean loginAttempt(String username, int pinIngresado){
            
         //Log-In logic
         if (intentos > 0) {
-            if (validarPIN(connection, pinIngresado)) {
+            if (validarPIN(connection, username, pinIngresado)) {
                 pinActual = pinIngresado;
                 return true;
             } else {
@@ -52,6 +67,10 @@ public class App {
                 }
                 return false;
             }
+        } else {
+            JOptionPane.showMessageDialog(null,"PIN incorrecto. Ha excedido el número de intentos.");
+            System.exit(0);
+            return false;
         }
     }
 
@@ -59,11 +78,11 @@ public class App {
 
     public static boolean validarPIN(Connection connection, String username, int pin) {
         String query_verify = "SELECT pin FROM usuarios WHERE alias = ?";
-        String query_get = "SELECT id, saldo FROM usuarios WHERE pin = ?";
+        String query_get = "SELECT id, saldo FROM usuarios WHERE alias = ?";
         boolean f = false;
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(query_verify);
-            preparedStatement.setInt(1, username);
+            preparedStatement.setString(1, username);
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
@@ -78,7 +97,7 @@ public class App {
 
         try{
             PreparedStatement preparedStatement2 = connection.prepareStatement(query_get);
-            preparedStatement2.setInt(1, username);
+            preparedStatement2.setString(1, username);
             ResultSet resultSet2 = preparedStatement2.executeQuery();
             if (resultSet2.next()) {
                 usuarioId = resultSet2.getInt("id");
@@ -98,7 +117,7 @@ public class App {
 
     
     public static void realizarDeposito() {
-        double cantidad = (double)JOptionPane.showInputDialog("Ingrese la cantidad a depositar: $");
+        double cantidad = Double.parseDouble(JOptionPane.showInputDialog("Ingrese la cantidad a depositar: $"));
 
         if (cantidad <= 0) {
             JOptionPane.showMessageDialog(null,"Cantidad no válida.");
@@ -110,7 +129,7 @@ public class App {
     }
 
     public static void realizarRetiro() {
-        double cantidad = (double)JOptionPane.showInputDialog("Ingrese la cantidad a retirar: $");
+        double cantidad = Double.parseDouble(JOptionPane.showInputDialog("Ingrese la cantidad a retirar: $"));
 
         if (cantidad <= 0) {
             JOptionPane.showMessageDialog(null,"Cantidad no válida.");
@@ -124,22 +143,22 @@ public class App {
     }
 
     public static void cambiarPIN() {
-        int pinIngresado = (int)JOptionPane.showInputDialog("Ingrese su PIN actual: ");
+        int pinIngresado = Integer.parseInt(JOptionPane.showInputDialog("Ingrese su PIN actual: "));
 
         if (pinIngresado == pinActual) {
-            int nuevoPin = (int)JOptionPane.showInputDialog("Ingrese su nuevo PIN: ");
+            int nuevoPin = Integer.parseInt(JOptionPane.showInputDialog("Ingrese su nuevo PIN: "));
             
-            int confirmacionPin = (int)JOptionPane.showInputDialog("Confirme su nuevo PIN: ");
+            int confirmacionPin = Integer.parseInt(JOptionPane.showInputDialog("Confirme su nuevo PIN: "));
 
             if (nuevoPin == confirmacionPin) {
                 pinActual = nuevoPin;
                 updatePIN(nuevoPin);
                 JOptionPane.showMessageDialog(null,"PIN actualizado con éxito.");
             } else {
-                JOptionPane.showMessageDialog(null,"Los PINs no coinciden.", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null,"Los PINs no coinciden.");
             }
         } else {
-            JOptionPane.showMessageDialog(null,"PIN incorrecto.", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null,"PIN incorrecto.");
         }
     }
 
@@ -158,7 +177,7 @@ public class App {
 
         if (operacion.equals("DEPOSITO")){ //Depósito
             try{
-                PreparedStatement preparedStatement2 = connection.prepareStatement(query_insert);
+                PreparedStatement preparedStatement2 = connection.prepareStatement(query_update);
                 preparedStatement2.setDouble(1, saldo+cantidad);
                 preparedStatement2.setInt(2, usuarioId);
                 preparedStatement2.executeQuery();
@@ -168,7 +187,7 @@ public class App {
             
         } else { //Retiro
             try{
-                PreparedStatement preparedStatement2 = connection.prepareStatement(query_insert);
+                PreparedStatement preparedStatement2 = connection.prepareStatement(query_update);
                 preparedStatement2.setDouble(1, saldo-cantidad);
                 preparedStatement2.setInt(2, usuarioId);
                 preparedStatement2.executeQuery();
@@ -177,5 +196,18 @@ public class App {
             }
         }
         
+    }
+
+    private static void updatePIN(int nuevoPin){
+        String query_update = "UPDATE usuario SET pin = ? WHERE id = ?:";
+
+        try{
+            PreparedStatement preparedStatement = connection.prepareStatement(query_update);
+            preparedStatement.setInt(1, nuevoPin);
+            preparedStatement.setInt(2, usuarioId);
+            preparedStatement.executeQuery();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -4,9 +4,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class MainMenuPanel extends JPanel {
-    //private ATMFrame atmFrame;
+    private ATMFrame atmFrame;
 
-    private App App = new App();
+    //private App app = new App();
 
     public MainMenuPanel(ATMFrame atmFrame) {
         this.atmFrame = atmFrame;
@@ -22,28 +22,28 @@ public class MainMenuPanel extends JPanel {
         balanceButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle balance inquiry logic here
-                showSaldo();
+                App.showSaldo();
             }
         });
 
         depositButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle deposit logic here
-                realizarDeposito();
+                App.realizarDeposito();
             }
         });
 
         withdrawalButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle withdrawal logic here
-                realizarRetiro();
+                App.realizarRetiro();
             }
         });
 
         changePinButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle change PIN logic here
-                cambiarPIN();
+                App.cambiarPIN();
             }
         });
 
