@@ -40,7 +40,8 @@ public class LoginPanel extends JPanel {
                 // If successful, switch to the main menu panel
                 String pass = new String(pinField.getPassword());
                 if (atmFrame.app.loginAttempt(usernameField.getText(), Integer.parseInt(pass))){
-                    atmFrame.app.setUsuario(usernameField.getText());
+                    atmFrame.app.setApp(usernameField.getText());
+                    JOptionPane.showMessageDialog(null, "Bienvenido, "+atmframe.app.getUsuarioNombre());
                     atmFrame.showCard("mainMenu");
                 }
                 pinField.setText("");

@@ -1,48 +1,64 @@
 package bo.edu.ucb.sis213;
 
-import java.sql.*;
-
 import javax.swing.JOptionPane;
 
 
 public class App {
 
-    private static int intentos = 3;
+    //  VARIABLES DE LA APP
+    private static int intentos;
     private static int usuarioId;
     private static double saldo;
     private static int pinActual;
+    private static String usuarioNombre;
+    private static DBFunctions dbFunctions;
 
-    private static final String HOST = "127.0.0.1";
-    private static final int PORT = 3307;
-    private static final String USER = "root";
-    private static final String PASSWORD = "123456";
-    private static final String DATABASE = "atm";
-    private static Connection connection = null;
-
+    // CONSTRUCTOR
     
     public App() {
-        try {
-            connection = getConnection(); // Conectarse a la base de datos al instanciar la clase
-        } catch (SQLException ex) {
-            System.err.println("No se puede conectar a Base de Datos");
-            ex.printStackTrace();
-            System.exit(1);
-        }
+        intentos = 3;
+        dbFunctions = new DBFunctions();
     }
 
+    // GETTERS Y SETTERS
+    public int getIntentos() {
+        return intentos;
+    }
 
-    public static Connection getConnection() throws SQLException {
-        //Connector genérico para la BDD
-        String jdbcUrl = String.format("jdbc:mysql://%s:%d/%s", HOST, PORT, DATABASE);
-        try {
-            // Asegúrate de tener el driver de MySQL agregado en tu proyecto
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            throw new SQLException("MySQL Driver not found.", e);
-        }
+    public void setIntentos(int intentos) {
+        App.intentos = intentos;
+    }
 
-        return DriverManager.getConnection(jdbcUrl, USER, PASSWORD);
+    public int getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(int usuarioId) {
+        App.usuarioId = usuarioId;
+    }
+
+    public double getSaldo() {
+        return saldo;
+    }
+
+    public void setSaldo(double saldo) {
+        App.saldo = saldo;
+    }
+
+    public int getPinActual() {
+        return pinActual;
+    }
+
+    public void setPinActual(int pinActual) {
+        App.pinActual = pinActual;
+    }
+
+    public String getUsuarioNombre() {
+        return usuarioNombre;
+    }
+
+    public void setUsuarioNombre(String usuarioNombre) {
+        App.usuarioNombre = usuarioNombre;
     }
 
     //  FUNCIONES DE LA APP
@@ -50,8 +66,7 @@ public class App {
     public boolean loginAttempt(String username, int pinIngresado){
         //Log-In logic
         if (intentos > 0) {
-            if (validarPIN(connection, username, pinIngresado)) {
-                pinActual = pinIngresado;
+            if (dbFunctions.validarPIN(username, pinIngresado)) {
                 return true;
             } else {
                 intentos--;
@@ -70,33 +85,18 @@ public class App {
         }
     }
 
-
-
-    public void setUsuario(String username){
-        //Obtener el ID del usuario
-        String query = "SELECT id FROM usuarios WHERE alias = ?";
-        try{
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setString(1, username);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                usuarioId = resultSet.getInt("id");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void setApp(String username){
+        //Setear la app con los datos del usuario
+        usuarioNombre = dbFunctions.getUsuarioNombre(username);
+        usuarioId = dbFunctions.getUsuarioId(username);
+        saldo = dbFunctions.getUsuarioSaldo(username);
+        pinActual = dbFunctions.getUsuarioPin(username);
     }
-
-    public double getSaldo(){
-        return saldo;
-    }
-
 
     public void showSaldo(){
         //Mostrar el saldo actual en pantalla
         JOptionPane.showMessageDialog(null,"Su saldo actual es: $" + saldo);
     }
-
     
     public void realizarDeposito() {
         //Depósito por ventana
@@ -105,7 +105,6 @@ public class App {
         if (cantidad <= 0) {
             JOptionPane.showMessageDialog(null,"Cantidad no válida.");
         } else {
-            saldo += cantidad;
             updateSaldo(cantidad, "DEPOSITO");
             JOptionPane.showMessageDialog(null,"Depósito realizado con éxito. Su nuevo saldo es: $" + saldo);
         }
@@ -120,10 +119,19 @@ public class App {
         } else if (cantidad > saldo) {
             JOptionPane.showMessageDialog(null,"Saldo insuficiente.");
         } else {
-            saldo -= cantidad;
             updateSaldo(cantidad, "RETIRO");
             JOptionPane.showMessageDialog(null,"Retiro realizado con éxito. Su nuevo saldo es: $" + saldo);
         }
+    }
+
+    private void updateSaldo(double cantidad, String operacion){
+        //Actualizar el historial
+        dbFunctions.actualizarHistorico(usuarioId, cantidad, operacion);
+        //Actualizar el saldo en la BDD
+        if (operacion.equals("DEPOSITO")) saldo += cantidad;
+        else if(operacion.equals("RETIRO")) saldo -= cantidad;
+
+        dbFunctions.actualizarSaldo(usuarioId, saldo);        
     }
 
     public void cambiarPIN() {
@@ -137,7 +145,7 @@ public class App {
 
             if (nuevoPin == confirmacionPin) {
                 pinActual = nuevoPin;
-                updatePIN(nuevoPin);
+                dbFunctions.updatePIN(usuarioId, nuevoPin);
                 JOptionPane.showMessageDialog(null,"PIN actualizado con éxito.");
             } else {
                 JOptionPane.showMessageDialog(null,"Los PINs no coinciden.");
@@ -148,94 +156,5 @@ public class App {
     }
 
 
-    //FUNCIONES CON LA BDD
-
-    public boolean validarPIN(Connection connection, String username, int pin) {
-        //Validar PIN desde la BDD
-        String query_verify = "SELECT pin FROM usuarios WHERE alias = ?";
-        String query_get = "SELECT id, saldo FROM usuarios WHERE alias = ?";
-        boolean f = false;
-
-        //Validar PIN con el usuario
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(query_verify);
-            preparedStatement.setString(1, username);
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            if (resultSet.next()) { //Si existe el usuario
-                if (resultSet.getInt("pin") == pin) f = true;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-        if (!f) return false;
-
-        //Recuperar el ID del usuario y su saldo
-        try{
-            PreparedStatement preparedStatement2 = connection.prepareStatement(query_get);
-            preparedStatement2.setString(1, username);
-            ResultSet resultSet2 = preparedStatement2.executeQuery();
-            if (resultSet2.next()) {
-                usuarioId = resultSet2.getInt("id");
-                saldo = resultSet2.getDouble("saldo");
-                return true;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    private void updateSaldo(double cantidad, String operacion){
-        String query_insert = "INSERT INTO historico (usuario_id, tipo_operacion, cantidad) VALUES (?,?,?)";
-        String query_update = "UPDATE usuarios SET saldo = ? WHERE id = ?;";
-
-        //Actualizar el historial en la BDD
-        try{
-            PreparedStatement preparedStatement = connection.prepareStatement(query_insert);
-            preparedStatement.setInt(1, usuarioId);
-            preparedStatement.setString(2, operacion);
-            preparedStatement.setDouble(3, cantidad);
-            preparedStatement.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        //Actualizar el saldo en la BDD
-        if (operacion.equals("DEPOSITO")){ //Depósito
-            try{
-                PreparedStatement preparedStatement2 = connection.prepareStatement(query_update);
-                preparedStatement2.setDouble(1, saldo);
-                preparedStatement2.setInt(2, usuarioId);
-                preparedStatement2.executeUpdate();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            
-        } else { //Retiro
-            try{
-                PreparedStatement preparedStatement2 = connection.prepareStatement(query_update);
-                preparedStatement2.setDouble(1, saldo);
-                preparedStatement2.setInt(2, usuarioId);
-                preparedStatement2.executeUpdate();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        
-    }
-
-    private void updatePIN(int nuevoPin){
-        String query_update = "UPDATE usuarios SET pin = ? WHERE id = ?;";
-        //Actualizar el PIN en la BDD
-        try{
-            PreparedStatement preparedStatement = connection.prepareStatement(query_update);
-            preparedStatement.setInt(1, nuevoPin);
-            preparedStatement.setInt(2, usuarioId);
-            preparedStatement.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    
 }
