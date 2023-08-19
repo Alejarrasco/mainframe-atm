@@ -190,7 +190,7 @@ public class App {
         if (operacion.equals("DEPOSITO")){ //Depósito
             try{
                 PreparedStatement preparedStatement2 = connection.prepareStatement(query_update);
-                preparedStatement2.setDouble(1, saldo+cantidad);
+                preparedStatement2.setDouble(1, saldo);
                 preparedStatement2.setInt(2, usuarioId);
                 preparedStatement2.executeUpdate();
             } catch (Exception e) {
@@ -200,7 +200,7 @@ public class App {
         } else { //Retiro
             try{
                 PreparedStatement preparedStatement2 = connection.prepareStatement(query_update);
-                preparedStatement2.setDouble(1, saldo-cantidad);
+                preparedStatement2.setDouble(1, saldo);
                 preparedStatement2.setInt(2, usuarioId);
                 preparedStatement2.executeUpdate();
             } catch (Exception e) {
@@ -211,7 +211,7 @@ public class App {
     }
 
     private void updatePIN(int nuevoPin){
-        String query_update = "UPDATE usuarios SET pin = ? WHERE id = ?:";
+        String query_update = "UPDATE usuarios SET pin = ? WHERE id = ?;";
 
         try{
             PreparedStatement preparedStatement = connection.prepareStatement(query_update);

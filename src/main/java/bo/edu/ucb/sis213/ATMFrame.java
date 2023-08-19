@@ -10,7 +10,7 @@ public class ATMFrame extends JFrame {
     public App app =  new App();
 
     public ATMFrame() {
-        setTitle("ATM Simulation");
+        setTitle("ATM Banco Casa de Moneda");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
