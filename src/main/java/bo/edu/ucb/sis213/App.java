@@ -22,7 +22,7 @@ public class App {
     
     public App() {
         try {
-            connection = getConnection(); // Reemplaza esto con tu conexión real
+            connection = getConnection(); // Conectarse a la base de datos al instanciar la clase
         } catch (SQLException ex) {
             System.err.println("No se puede conectar a Base de Datos");
             ex.printStackTrace();
@@ -32,6 +32,7 @@ public class App {
 
 
     public static Connection getConnection() throws SQLException {
+        //Connector genérico para la BDD
         String jdbcUrl = String.format("jdbc:mysql://%s:%d/%s", HOST, PORT, DATABASE);
         try {
             // Asegúrate de tener el driver de MySQL agregado en tu proyecto
@@ -44,8 +45,9 @@ public class App {
         return DriverManager.getConnection(jdbcUrl, USER, PASSWORD);
     }
 
+    //  FUNCIONES DE LA APP
+
     public boolean loginAttempt(String username, int pinIngresado){
-           
         //Log-In logic
         if (intentos > 0) {
             if (validarPIN(connection, username, pinIngresado)) {
@@ -70,41 +72,8 @@ public class App {
 
 
 
-    public boolean validarPIN(Connection connection, String username, int pin) {
-        String query_verify = "SELECT pin FROM usuarios WHERE alias = ?";
-        String query_get = "SELECT id, saldo FROM usuarios WHERE alias = ?";
-        boolean f = false;
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(query_verify);
-            preparedStatement.setString(1, username);
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            if (resultSet.next()) {
-                if (resultSet.getInt("pin") == pin) f = true;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-        if (!f) return false;
-
-
-        try{
-            PreparedStatement preparedStatement2 = connection.prepareStatement(query_get);
-            preparedStatement2.setString(1, username);
-            ResultSet resultSet2 = preparedStatement2.executeQuery();
-            if (resultSet2.next()) {
-                usuarioId = resultSet2.getInt("id");
-                saldo = resultSet2.getDouble("saldo");
-                return true;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
     public void setUsuario(String username){
+        //Obtener el ID del usuario
         String query = "SELECT id FROM usuarios WHERE alias = ?";
         try{
             PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -124,11 +93,13 @@ public class App {
 
 
     public void showSaldo(){
+        //Mostrar el saldo actual en pantalla
         JOptionPane.showMessageDialog(null,"Su saldo actual es: $" + saldo);
     }
 
     
     public void realizarDeposito() {
+        //Depósito por ventana
         double cantidad = Double.parseDouble(JOptionPane.showInputDialog("Ingrese la cantidad a depositar: $"));
 
         if (cantidad <= 0) {
@@ -141,6 +112,7 @@ public class App {
     }
 
     public void realizarRetiro() {
+        //Retiro por ventana
         double cantidad = Double.parseDouble(JOptionPane.showInputDialog("Ingrese la cantidad a retirar: $"));
 
         if (cantidad <= 0) {
@@ -155,6 +127,7 @@ public class App {
     }
 
     public void cambiarPIN() {
+        //Cambiar PIN por ventana
         int pinIngresado = Integer.parseInt(JOptionPane.showInputDialog("Ingrese su PIN actual: "));
 
         if (pinIngresado == pinActual) {
@@ -174,9 +147,51 @@ public class App {
         }
     }
 
+
+    //FUNCIONES CON LA BDD
+
+    public boolean validarPIN(Connection connection, String username, int pin) {
+        //Validar PIN desde la BDD
+        String query_verify = "SELECT pin FROM usuarios WHERE alias = ?";
+        String query_get = "SELECT id, saldo FROM usuarios WHERE alias = ?";
+        boolean f = false;
+
+        //Validar PIN con el usuario
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(query_verify);
+            preparedStatement.setString(1, username);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) { //Si existe el usuario
+                if (resultSet.getInt("pin") == pin) f = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        if (!f) return false;
+
+        //Recuperar el ID del usuario y su saldo
+        try{
+            PreparedStatement preparedStatement2 = connection.prepareStatement(query_get);
+            preparedStatement2.setString(1, username);
+            ResultSet resultSet2 = preparedStatement2.executeQuery();
+            if (resultSet2.next()) {
+                usuarioId = resultSet2.getInt("id");
+                saldo = resultSet2.getDouble("saldo");
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     private void updateSaldo(double cantidad, String operacion){
         String query_insert = "INSERT INTO historico (usuario_id, tipo_operacion, cantidad) VALUES (?,?,?)";
         String query_update = "UPDATE usuarios SET saldo = ? WHERE id = ?;";
+
+        //Actualizar el historial en la BDD
         try{
             PreparedStatement preparedStatement = connection.prepareStatement(query_insert);
             preparedStatement.setInt(1, usuarioId);
@@ -187,6 +202,7 @@ public class App {
             e.printStackTrace();
         }
 
+        //Actualizar el saldo en la BDD
         if (operacion.equals("DEPOSITO")){ //Depósito
             try{
                 PreparedStatement preparedStatement2 = connection.prepareStatement(query_update);
@@ -212,7 +228,7 @@ public class App {
 
     private void updatePIN(int nuevoPin){
         String query_update = "UPDATE usuarios SET pin = ? WHERE id = ?;";
-
+        //Actualizar el PIN en la BDD
         try{
             PreparedStatement preparedStatement = connection.prepareStatement(query_update);
             preparedStatement.setInt(1, nuevoPin);

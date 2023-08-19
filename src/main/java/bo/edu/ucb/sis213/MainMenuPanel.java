@@ -8,7 +8,8 @@ import java.awt.event.ActionListener;
 public class MainMenuPanel extends JPanel {
     private ATMFrame atmFrame;
 
-    //private App app = new App();
+    //Menu principal
+    //Asume que el usuario ya se logueó y que el PIN es correcto
 
     public MainMenuPanel(ATMFrame atmframe) {
         this.atmFrame = atmframe;

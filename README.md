@@ -102,4 +102,10 @@ use atm;
 
 ## Maquetado de interfaz gráfica
 
+![Alt text](maquetado/log_in_and_main_menu.png)
+
+![Alt text](maquetado/deposits_and_withdrawals.png)
+
+![Alt text](maquetado/pin_change.png)
+
 

@@ -11,6 +11,9 @@ public class LoginPanel extends JPanel {
     private JButton loginButton;
     private ATMFrame atmFrame;
 
+    //Login
+    //Primera pantalla que se muestra al iniciar la aplicación
+
     public LoginPanel(ATMFrame atmframe) {
 
         
@@ -40,6 +43,7 @@ public class LoginPanel extends JPanel {
                     atmFrame.app.setUsuario(usernameField.getText());
                     atmFrame.showCard("mainMenu");
                 }
+                pinField.setText("");
             }
         });
     }
