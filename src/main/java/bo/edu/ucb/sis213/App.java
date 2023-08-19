@@ -4,8 +4,6 @@ import java.sql.*;
 
 import javax.swing.JOptionPane;
 
-import java.sql.Connection;
-
 
 public class App {
 
@@ -15,7 +13,7 @@ public class App {
     private static int pinActual;
 
     private static final String HOST = "127.0.0.1";
-    private static final int PORT = 3306;
+    private static final int PORT = 3307;
     private static final String USER = "root";
     private static final String PASSWORD = "123456";
     private static final String DATABASE = "atm";
@@ -32,17 +30,6 @@ public class App {
         }
     }
 
-    public App(int userid) {
-        try {
-            connection = getConnection(); // Reemplaza esto con tu conexión real
-        } catch (SQLException ex) {
-            System.err.println("No se puede conectar a Base de Datos");
-            ex.printStackTrace();
-            System.exit(1);
-        }
-
-        usuarioId = userid;
-    }
 
     public static Connection getConnection() throws SQLException {
         String jdbcUrl = String.format("jdbc:mysql://%s:%d/%s", HOST, PORT, DATABASE);
@@ -55,10 +42,6 @@ public class App {
         }
 
         return DriverManager.getConnection(jdbcUrl, USER, PASSWORD);
-    }
-
-    public double getSaldo(){
-        return saldo;
     }
 
     public boolean loginAttempt(String username, int pinIngresado){
@@ -121,6 +104,24 @@ public class App {
         return false;
     }
 
+    public void setUsuario(String username){
+        String query = "SELECT id FROM usuarios WHERE alias = ?";
+        try{
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, username);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                usuarioId = resultSet.getInt("id");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public double getSaldo(){
+        return saldo;
+    }
+
 
     public void showSaldo(){
         JOptionPane.showMessageDialog(null,"Su saldo actual es: $" + saldo);
@@ -175,13 +176,13 @@ public class App {
 
     private void updateSaldo(double cantidad, String operacion){
         String query_insert = "INSERT INTO historico (usuario_id, tipo_operacion, cantidad) VALUES (?,?,?)";
-        String query_update = "UPDATE usuario SET saldo = ? WHERE id = ?;";
+        String query_update = "UPDATE usuarios SET saldo = ? WHERE id = ?;";
         try{
             PreparedStatement preparedStatement = connection.prepareStatement(query_insert);
             preparedStatement.setInt(1, usuarioId);
             preparedStatement.setString(2, operacion);
             preparedStatement.setDouble(3, cantidad);
-            preparedStatement.executeQuery();
+            preparedStatement.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -191,7 +192,7 @@ public class App {
                 PreparedStatement preparedStatement2 = connection.prepareStatement(query_update);
                 preparedStatement2.setDouble(1, saldo+cantidad);
                 preparedStatement2.setInt(2, usuarioId);
-                preparedStatement2.executeQuery();
+                preparedStatement2.executeUpdate();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -201,7 +202,7 @@ public class App {
                 PreparedStatement preparedStatement2 = connection.prepareStatement(query_update);
                 preparedStatement2.setDouble(1, saldo-cantidad);
                 preparedStatement2.setInt(2, usuarioId);
-                preparedStatement2.executeQuery();
+                preparedStatement2.executeUpdate();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -210,13 +211,13 @@ public class App {
     }
 
     private void updatePIN(int nuevoPin){
-        String query_update = "UPDATE usuario SET pin = ? WHERE id = ?:";
+        String query_update = "UPDATE usuarios SET pin = ? WHERE id = ?:";
 
         try{
             PreparedStatement preparedStatement = connection.prepareStatement(query_update);
             preparedStatement.setInt(1, nuevoPin);
             preparedStatement.setInt(2, usuarioId);
-            preparedStatement.executeQuery();
+            preparedStatement.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         }

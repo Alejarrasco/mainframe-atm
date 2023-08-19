@@ -10,10 +10,8 @@ public class MainMenuPanel extends JPanel {
 
     //private App app = new App();
 
-    public MainMenuPanel(ATMFrame atmFrame) {
-        this.atmFrame = atmFrame;
-
-        this.atmFrame.setApp(new App());//Por si acaso
+    public MainMenuPanel(ATMFrame atmframe) {
+        this.atmFrame = atmframe;
 
         setLayout(new GridLayout(5, 1));
 
@@ -26,28 +24,28 @@ public class MainMenuPanel extends JPanel {
         balanceButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle balance inquiry logic here
-                app.showSaldo();
+                atmFrame.app.showSaldo();
             }
         });
 
         depositButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle deposit logic here
-                app.realizarDeposito();
+                atmFrame.app.realizarDeposito();
             }
         });
 
         withdrawalButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle withdrawal logic here
-                app.realizarRetiro();
+                atmFrame.app.realizarRetiro();
             }
         });
 
         changePinButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle change PIN logic here
-                app.cambiarPIN();
+                atmFrame.app.cambiarPIN();
             }
         });
 

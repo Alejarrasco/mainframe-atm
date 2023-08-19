@@ -11,13 +11,11 @@ public class LoginPanel extends JPanel {
     private JButton loginButton;
     private ATMFrame atmFrame;
 
-    public LoginPanel(ATMFrame atmFrame) {
+    public LoginPanel(ATMFrame atmframe) {
 
         
 
-        this.atmFrame = atmFrame;
-
-        this.atmFrame.setApp(new App());//Por si acaso
+        this.atmFrame = atmframe;
 
         setLayout(new GridLayout(3, 2));
 
@@ -38,8 +36,10 @@ public class LoginPanel extends JPanel {
                 // Verify username and PIN from the database
                 // If successful, switch to the main menu panel
                 String pass = new String(pinField.getPassword());
-                if (app.loginAttempt(usernameField.getText(), Integer.parseInt(pass)))
+                if (atmFrame.app.loginAttempt(usernameField.getText(), Integer.parseInt(pass))){
+                    atmFrame.app.setUsuario(usernameField.getText());
                     atmFrame.showCard("mainMenu");
+                }
             }
         });
     }
