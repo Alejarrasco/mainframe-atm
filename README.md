@@ -76,7 +76,7 @@ mvn exec:java -Dexec.mainClass="bo.edu.ucb.sis213.ATMApp"
 1. Hacer correr una instancia MySQL en docker
 
 ```
-docker run --name mysql-atm -e MYSQL_ROOT_PASSWORD=123456 -p 3306:3306 -d mysql:8
+docker run --name mysql-atm -e MYSQL_ROOT_PASSWORD=123456 -p 3307:3306 -d mysql:8
 ```
 
 2. Me conecto a la BBDD (Le pedira password es 123456)

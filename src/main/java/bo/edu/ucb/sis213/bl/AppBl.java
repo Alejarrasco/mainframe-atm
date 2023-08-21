@@ -1,9 +1,11 @@
-package bo.edu.ucb.sis213;
+package bo.edu.ucb.sis213.bl;
 
 import javax.swing.JOptionPane;
+import bo.edu.ucb.sis213.dao.UsuarioDao;
+import bo.edu.ucb.sis213.dao.HistoricoDao;
 
 
-public class App {
+public class AppBl {
 
     //  VARIABLES DE LA APP
     private static int intentos;
@@ -11,13 +13,15 @@ public class App {
     private static double saldo;
     private static int pinActual;
     private static String usuarioNombre;
-    private static DBFunctions dbFunctions;
+    private static UsuarioDao usuarioDao;
+    private static HistoricoDao historicoDao;
 
     // CONSTRUCTOR
     
-    public App() {
+    public AppBl() {
         intentos = 3;
-        dbFunctions = new DBFunctions();
+        usuarioDao = new UsuarioDao();
+        historicoDao = new HistoricoDao();
     }
 
     // GETTERS Y SETTERS
@@ -26,7 +30,7 @@ public class App {
     }
 
     public void setIntentos(int intentos) {
-        App.intentos = intentos;
+        AppBl.intentos = intentos;
     }
 
     public int getUsuarioId() {
@@ -34,7 +38,7 @@ public class App {
     }
 
     public void setUsuarioId(int usuarioId) {
-        App.usuarioId = usuarioId;
+        AppBl.usuarioId = usuarioId;
     }
 
     public double getSaldo() {
@@ -42,7 +46,7 @@ public class App {
     }
 
     public void setSaldo(double saldo) {
-        App.saldo = saldo;
+        AppBl.saldo = saldo;
     }
 
     public int getPinActual() {
@@ -50,7 +54,7 @@ public class App {
     }
 
     public void setPinActual(int pinActual) {
-        App.pinActual = pinActual;
+        AppBl.pinActual = pinActual;
     }
 
     public String getUsuarioNombre() {
@@ -58,7 +62,7 @@ public class App {
     }
 
     public void setUsuarioNombre(String usuarioNombre) {
-        App.usuarioNombre = usuarioNombre;
+        AppBl.usuarioNombre = usuarioNombre;
     }
 
     //  FUNCIONES DE LA APP
@@ -66,7 +70,7 @@ public class App {
     public boolean loginAttempt(String username, int pinIngresado){
         //Log-In logic
         if (intentos > 0) {
-            if (dbFunctions.validarPIN(username, pinIngresado)) {
+            if (usuarioDao.validarPIN(username, pinIngresado)) {
                 return true;
             } else {
                 intentos--;
@@ -87,10 +91,10 @@ public class App {
 
     public void setApp(String username){
         //Setear la app con los datos del usuario
-        usuarioNombre = dbFunctions.getUsuarioNombre(username);
-        usuarioId = dbFunctions.getUsuarioId(username);
-        saldo = dbFunctions.getUsuarioSaldo(username);
-        pinActual = dbFunctions.getUsuarioPin(username);
+        usuarioNombre = usuarioDao.getUsuarioNombre(username);
+        usuarioId = usuarioDao.getUsuarioId(username);
+        saldo = usuarioDao.getUsuarioSaldo(username);
+        pinActual = usuarioDao.getUsuarioPin(username);
     }
 
     public void showSaldo(){
@@ -126,12 +130,12 @@ public class App {
 
     private void updateSaldo(double cantidad, String operacion){
         //Actualizar el historial
-        dbFunctions.actualizarHistorico(usuarioId, cantidad, operacion);
+        historicoDao.actualizarHistorico(usuarioId, cantidad, operacion);
         //Actualizar el saldo en la BDD
         if (operacion.equals("DEPOSITO")) saldo += cantidad;
         else if(operacion.equals("RETIRO")) saldo -= cantidad;
 
-        dbFunctions.actualizarSaldo(usuarioId, saldo);        
+        usuarioDao.actualizarSaldo(usuarioId, saldo);        
     }
 
     public void cambiarPIN() {
@@ -145,7 +149,7 @@ public class App {
 
             if (nuevoPin == confirmacionPin) {
                 pinActual = nuevoPin;
-                dbFunctions.updatePIN(usuarioId, nuevoPin);
+                usuarioDao.updatePIN(usuarioId, nuevoPin);
                 JOptionPane.showMessageDialog(null,"PIN actualizado con éxito.");
             } else {
                 JOptionPane.showMessageDialog(null,"Los PINs no coinciden.");

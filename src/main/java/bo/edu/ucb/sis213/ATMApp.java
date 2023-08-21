@@ -2,6 +2,8 @@ package bo.edu.ucb.sis213;
 
 import javax.swing.*;
 
+import bo.edu.ucb.sis213.view.ATMFrame;
+
 public class ATMApp {
 
     

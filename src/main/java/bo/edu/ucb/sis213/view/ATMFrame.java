@@ -1,13 +1,16 @@
-package bo.edu.ucb.sis213;
+package bo.edu.ucb.sis213.view;
 
 import javax.swing.*;
+
+import bo.edu.ucb.sis213.bl.AppBl;
+
 import java.awt.CardLayout;
 
 public class ATMFrame extends JFrame {
     private CardLayout cardLayout;
     private JPanel cardPanel;
 
-    public App app =  new App();
+    public AppBl app =  new AppBl();
 
     public ATMFrame() {
         setTitle("ATM Banco Casa de Moneda");
@@ -27,7 +30,7 @@ public class ATMFrame extends JFrame {
         cardLayout.show(cardPanel, cardName);
     }
 
-    public void setApp(App app_){
+    public void setApp(AppBl app_){
         this.app = app_;
     }
 }

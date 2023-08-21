@@ -1,15 +1,15 @@
-package bo.edu.ucb.sis213;
+package bo.edu.ucb.sis213.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class DBFunctions {
+public class UsuarioDao {
 
     //  CONEXIÓN A LA BDD
     private static Connection connection = null;
 
-    public DBFunctions() {
+    public UsuarioDao() {
         try {
             connection = ConnectionMySQL.getConnection(); // Conectarse a la base de datos al instanciar la clase
         } catch (Exception ex) {
@@ -109,21 +109,6 @@ public class DBFunctions {
             e.printStackTrace();
         }
         return result;
-    }
-
-    public void actualizarHistorico(int usuarioId, double cantidad, String operacion){
-        String query_insert = "INSERT INTO historico (usuario_id, tipo_operacion, cantidad) VALUES (?,?,?)";
-
-        //Actualizar el historial en la BDD
-        try{
-            PreparedStatement preparedStatement = connection.prepareStatement(query_insert);
-            preparedStatement.setInt(1, usuarioId);
-            preparedStatement.setString(2, operacion);
-            preparedStatement.setDouble(3, cantidad);
-            preparedStatement.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public void actualizarSaldo(int usuarioId, double saldo){
