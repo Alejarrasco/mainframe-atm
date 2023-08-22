@@ -2,6 +2,8 @@ package bo.edu.ucb.sis213.view;
 
 import javax.swing.*;
 
+import bo.edu.ucb.sis213.bl.ATMException;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,37 +19,66 @@ public class MainMenuPanel extends JPanel {
 
         setLayout(new GridLayout(5, 1));
 
-        JButton balanceButton = new JButton("Balance Inquiry");
-        JButton depositButton = new JButton("Deposit");
-        JButton withdrawalButton = new JButton("Withdrawal");
-        JButton changePinButton = new JButton("Change PIN");
+        JButton balanceButton = new JButton("Consulta de Saldo");
+        JButton depositButton = new JButton("Deposito");
+        JButton withdrawalButton = new JButton("Retiro");
+        JButton changePinButton = new JButton("Cambio de PIN");
         JButton exitButton = new JButton("Exit");
 
         balanceButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // Handle balance inquiry logic here
-                atmFrame.app.showSaldo();
+                //Mostrar el saldo actual en pantalla
+                JOptionPane.showMessageDialog(null,"Su saldo actual es: $" + atmFrame.app.getSaldo());
             }
         });
 
         depositButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle deposit logic here
-                atmFrame.app.realizarDeposito();
-            }
+                Double monto = Double.parseDouble(JOptionPane.showInputDialog("Ingrese la cantidad a depositar: $"));
+                try{
+                    atmFrame.app.realizarDeposito(monto);
+                    JOptionPane.showMessageDialog(null,"Depósito realizado con éxito. Su nuevo saldo es: $" + atmFrame.app.getSaldo());
+                }catch(ATMException ex){
+                    JOptionPane.showMessageDialog(null,ex.getMessage());
+                }
+            }   
         });
 
         withdrawalButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle withdrawal logic here
-                atmFrame.app.realizarRetiro();
+
+                Double monto = Double.parseDouble(JOptionPane.showInputDialog("Ingrese la cantidad a depositar: $"));
+                try{
+                    atmFrame.app.realizarRetiro(monto);
+                    JOptionPane.showMessageDialog(null,"Retiro realizado con \u00E9xito. Su nuevo saldo es: $" + atmFrame.app.getSaldo());
+                }catch(ATMException ex){
+                    JOptionPane.showMessageDialog(null,ex.getMessage());
+                }
             }
         });
 
         changePinButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle change PIN logic here
-                atmFrame.app.cambiarPIN();
+                int pinIngresado = Integer.parseInt(JOptionPane.showInputDialog("Ingrese su PIN actual: "));
+                try {
+                    atmFrame.app.validarPINbl(atmFrame.app.getUsername(), pinIngresado);
+                } catch (ATMException ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage());
+                    return ;
+                }
+
+                int nuevoPin = Integer.parseInt(JOptionPane.showInputDialog("Ingrese su nuevo PIN: "));
+                int confirmacionPin = Integer.parseInt(JOptionPane.showInputDialog("Confirme su nuevo PIN: "));
+                try {
+                    atmFrame.app.cambiarPIN(nuevoPin, confirmacionPin);
+                } catch (ATMException ex) {
+                    JOptionPane.showMessageDialog(null,ex.getMessage());
+                    return;
+                }
+                JOptionPane.showMessageDialog(null,"PIN actualizado con éxito.");
             }
         });
 

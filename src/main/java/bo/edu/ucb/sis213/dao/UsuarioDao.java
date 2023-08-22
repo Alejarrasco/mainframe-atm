@@ -21,28 +21,6 @@ public class UsuarioDao {
 
     //FUNCIONES CON LA BDD
 
-    public boolean validarPIN(String username, int pin) {
-        //Validar PIN desde la BDD
-        String query_verify = "SELECT pin FROM usuarios WHERE alias = ?";
-        
-        boolean f = false;
-
-        //Validar PIN con el usuario
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(query_verify);
-            preparedStatement.setString(1, username);
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            if (resultSet.next()) { //Si existe el usuario
-                if (resultSet.getInt("pin") == pin) f = true;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-        return f;
-    }
-
     public int getUsuarioId(String username){
         int result = -1;
         //Obtener el ID del usuario

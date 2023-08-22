@@ -1,6 +1,5 @@
 package bo.edu.ucb.sis213.bl;
 
-import javax.swing.JOptionPane;
 import bo.edu.ucb.sis213.dao.UsuarioDao;
 import bo.edu.ucb.sis213.dao.HistoricoDao;
 
@@ -8,13 +7,14 @@ import bo.edu.ucb.sis213.dao.HistoricoDao;
 public class AppBl {
 
     //  VARIABLES DE LA APP
-    private static int intentos;
-    private static int usuarioId;
-    private static double saldo;
-    private static int pinActual;
-    private static String usuarioNombre;
-    private static UsuarioDao usuarioDao;
-    private static HistoricoDao historicoDao;
+    private int intentos;
+    private int usuarioId;
+    private double saldo;
+    private int pinActual;
+    private String usuarioNombre;
+    private String username;
+    private UsuarioDao usuarioDao;
+    private HistoricoDao historicoDao;
 
     // CONSTRUCTOR
     
@@ -30,7 +30,7 @@ public class AppBl {
     }
 
     public void setIntentos(int intentos) {
-        AppBl.intentos = intentos;
+        this.intentos = intentos;
     }
 
     public int getUsuarioId() {
@@ -38,7 +38,7 @@ public class AppBl {
     }
 
     public void setUsuarioId(int usuarioId) {
-        AppBl.usuarioId = usuarioId;
+        this.usuarioId = usuarioId;
     }
 
     public double getSaldo() {
@@ -46,7 +46,7 @@ public class AppBl {
     }
 
     public void setSaldo(double saldo) {
-        AppBl.saldo = saldo;
+        this.saldo = saldo;
     }
 
     public int getPinActual() {
@@ -54,7 +54,7 @@ public class AppBl {
     }
 
     public void setPinActual(int pinActual) {
-        AppBl.pinActual = pinActual;
+        this.pinActual = pinActual;
     }
 
     public String getUsuarioNombre() {
@@ -62,30 +62,40 @@ public class AppBl {
     }
 
     public void setUsuarioNombre(String usuarioNombre) {
-        AppBl.usuarioNombre = usuarioNombre;
+        this.usuarioNombre = usuarioNombre;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     //  FUNCIONES DE LA APP
 
-    public boolean loginAttempt(String username, int pinIngresado){
-        //Log-In logic
-        if (intentos > 0) {
-            if (usuarioDao.validarPIN(username, pinIngresado)) {
-                return true;
-            } else {
+    public void validarPINbl(String username, int pin) throws ATMException{
+        if (usuarioDao.getUsuarioPin(username) == pin) return;
+        throw new ATMException("Los PINs no coinciden");
+    }
+
+    public void loginAttempt(String username, int pinIngresado) throws ATMException{
+        
+        if(intentos > 0){
+            try{
+                validarPINbl(username, pinIngresado);
+                return;
+            } catch (ATMException ex) {
                 intentos--;
                 if (intentos > 0) {
-                    JOptionPane.showMessageDialog(null,"PIN incorrecto. Le quedan " + intentos + " intentos.");
+                    throw new ATMException("PIN incorrecto. Le quedan " + intentos + " intentos.");
                 } else {
-                    JOptionPane.showMessageDialog(null,"PIN incorrecto. Ha excedido el número de intentos.");
-                    System.exit(0);
+                    throw new ATMException("PIN incorrecto. Ha excedido el número de intentos.", 0);
                 }
-                return false;
             }
         } else {
-            JOptionPane.showMessageDialog(null,"PIN incorrecto. Ha excedido el número de intentos.");
-            System.exit(0);
-            return false;
+            throw new ATMException("PIN incorrecto. Ha excedido el número de intentos.", 0);
         }
     }
 
@@ -95,36 +105,31 @@ public class AppBl {
         usuarioId = usuarioDao.getUsuarioId(username);
         saldo = usuarioDao.getUsuarioSaldo(username);
         pinActual = usuarioDao.getUsuarioPin(username);
-    }
-
-    public void showSaldo(){
-        //Mostrar el saldo actual en pantalla
-        JOptionPane.showMessageDialog(null,"Su saldo actual es: $" + saldo);
+        this.username = username;
     }
     
-    public void realizarDeposito() {
+    public void realizarDeposito(double cantidad) throws ATMException {
         //Depósito por ventana
-        double cantidad = Double.parseDouble(JOptionPane.showInputDialog("Ingrese la cantidad a depositar: $"));
+        
 
         if (cantidad <= 0) {
-            JOptionPane.showMessageDialog(null,"Cantidad no válida.");
+            throw new ATMException("Cantidad no válida.");
         } else {
             updateSaldo(cantidad, "DEPOSITO");
-            JOptionPane.showMessageDialog(null,"Depósito realizado con éxito. Su nuevo saldo es: $" + saldo);
+            
         }
     }
 
-    public void realizarRetiro() {
+    public void realizarRetiro(double cantidad) throws ATMException {
         //Retiro por ventana
-        double cantidad = Double.parseDouble(JOptionPane.showInputDialog("Ingrese la cantidad a retirar: $"));
-
+        
         if (cantidad <= 0) {
-            JOptionPane.showMessageDialog(null,"Cantidad no válida.");
+            throw new ATMException("Cantidad no válida.");
         } else if (cantidad > saldo) {
-            JOptionPane.showMessageDialog(null,"Saldo insuficiente.");
+            throw new ATMException("Saldo insuficiente.");
         } else {
             updateSaldo(cantidad, "RETIRO");
-            JOptionPane.showMessageDialog(null,"Retiro realizado con éxito. Su nuevo saldo es: $" + saldo);
+            
         }
     }
 
@@ -138,24 +143,14 @@ public class AppBl {
         usuarioDao.actualizarSaldo(usuarioId, saldo);        
     }
 
-    public void cambiarPIN() {
+    public void cambiarPIN(int nuevoPin, int confirmacionPin) throws ATMException {
         //Cambiar PIN por ventana
-        int pinIngresado = Integer.parseInt(JOptionPane.showInputDialog("Ingrese su PIN actual: "));
-
-        if (pinIngresado == pinActual) {
-            int nuevoPin = Integer.parseInt(JOptionPane.showInputDialog("Ingrese su nuevo PIN: "));
-            
-            int confirmacionPin = Integer.parseInt(JOptionPane.showInputDialog("Confirme su nuevo PIN: "));
-
-            if (nuevoPin == confirmacionPin) {
-                pinActual = nuevoPin;
-                usuarioDao.updatePIN(usuarioId, nuevoPin);
-                JOptionPane.showMessageDialog(null,"PIN actualizado con éxito.");
-            } else {
-                JOptionPane.showMessageDialog(null,"Los PINs no coinciden.");
-            }
+        if (nuevoPin == confirmacionPin) {
+            pinActual = nuevoPin;
+            usuarioDao.updatePIN(usuarioId, nuevoPin);
+                
         } else {
-            JOptionPane.showMessageDialog(null,"PIN incorrecto.");
+            throw new ATMException("Los PINs no coinciden.");   
         }
     }
 
