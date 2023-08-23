@@ -2,11 +2,12 @@ package bo.edu.ucb.sis213.view;
 
 import javax.swing.*;
 
-import bo.edu.ucb.sis213.bl.ATMException;
+import bo.edu.ucb.sis213.util.ATMException;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.math.BigDecimal;
 
 public class MainMenuPanel extends JPanel {
     private ATMFrame atmFrame;
@@ -35,7 +36,7 @@ public class MainMenuPanel extends JPanel {
         depositButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle deposit logic here
-                Double monto = Double.parseDouble(JOptionPane.showInputDialog("Ingrese la cantidad a depositar: $"));
+                BigDecimal monto = new BigDecimal(JOptionPane.showInputDialog("Ingrese la cantidad a depositar: $"));
                 try{
                     atmFrame.app.realizarDeposito(monto);
                     JOptionPane.showMessageDialog(null,"Depósito realizado con éxito. Su nuevo saldo es: $" + atmFrame.app.getSaldo());
@@ -49,7 +50,7 @@ public class MainMenuPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 // Handle withdrawal logic here
 
-                Double monto = Double.parseDouble(JOptionPane.showInputDialog("Ingrese la cantidad a depositar: $"));
+                BigDecimal monto = new BigDecimal(JOptionPane.showInputDialog("Ingrese la cantidad a retirar: $"));
                 try{
                     atmFrame.app.realizarRetiro(monto);
                     JOptionPane.showMessageDialog(null,"Retiro realizado con \u00E9xito. Su nuevo saldo es: $" + atmFrame.app.getSaldo());

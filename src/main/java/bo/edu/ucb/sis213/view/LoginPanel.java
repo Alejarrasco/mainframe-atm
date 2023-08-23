@@ -2,7 +2,7 @@ package bo.edu.ucb.sis213.view;
 
 import javax.swing.*;
 
-import bo.edu.ucb.sis213.bl.ATMException;
+import bo.edu.ucb.sis213.util.ATMException;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;

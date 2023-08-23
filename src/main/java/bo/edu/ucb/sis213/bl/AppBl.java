@@ -1,6 +1,10 @@
 package bo.edu.ucb.sis213.bl;
 
 import bo.edu.ucb.sis213.dao.UsuarioDao;
+import bo.edu.ucb.sis213.util.ATMException;
+
+import java.math.BigDecimal;
+
 import bo.edu.ucb.sis213.dao.HistoricoDao;
 
 
@@ -9,7 +13,7 @@ public class AppBl {
     //  VARIABLES DE LA APP
     private int intentos;
     private int usuarioId;
-    private double saldo;
+    private BigDecimal saldo;
     private int pinActual;
     private String usuarioNombre;
     private String username;
@@ -41,11 +45,11 @@ public class AppBl {
         this.usuarioId = usuarioId;
     }
 
-    public double getSaldo() {
+    public BigDecimal getSaldo() {
         return saldo;
     }
 
-    public void setSaldo(double saldo) {
+    public void setSaldo(BigDecimal saldo) {
         this.saldo = saldo;
     }
 
@@ -108,11 +112,11 @@ public class AppBl {
         this.username = username;
     }
     
-    public void realizarDeposito(double cantidad) throws ATMException {
+    public void realizarDeposito(BigDecimal cantidad) throws ATMException {
         //Depósito por ventana
         
 
-        if (cantidad <= 0) {
+        if (cantidad.compareTo(BigDecimal.ZERO) < 1) {
             throw new ATMException("Cantidad no válida.");
         } else {
             updateSaldo(cantidad, "DEPOSITO");
@@ -120,12 +124,12 @@ public class AppBl {
         }
     }
 
-    public void realizarRetiro(double cantidad) throws ATMException {
+    public void realizarRetiro(BigDecimal cantidad) throws ATMException {
         //Retiro por ventana
         
-        if (cantidad <= 0) {
+        if (cantidad.compareTo(BigDecimal.ZERO) < 1) {
             throw new ATMException("Cantidad no válida.");
-        } else if (cantidad > saldo) {
+        } else if (cantidad.compareTo(saldo) > 0) {
             throw new ATMException("Saldo insuficiente.");
         } else {
             updateSaldo(cantidad, "RETIRO");
@@ -133,12 +137,12 @@ public class AppBl {
         }
     }
 
-    private void updateSaldo(double cantidad, String operacion){
+    private void updateSaldo(BigDecimal cantidad, String operacion){
         //Actualizar el historial
         historicoDao.actualizarHistorico(usuarioId, cantidad, operacion);
         //Actualizar el saldo en la BDD
-        if (operacion.equals("DEPOSITO")) saldo += cantidad;
-        else if(operacion.equals("RETIRO")) saldo -= cantidad;
+        if (operacion.equals("DEPOSITO")) saldo = saldo.add(cantidad);
+        else if(operacion.equals("RETIRO")) saldo = saldo.subtract(cantidad);
 
         usuarioDao.actualizarSaldo(usuarioId, saldo);        
     }

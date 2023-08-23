@@ -1,5 +1,7 @@
 package bo.edu.ucb.sis213.dao;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -55,8 +57,8 @@ public class UsuarioDao {
         return result;
     }
 
-    public double getUsuarioSaldo(String username){
-        Double result = -1.0;
+    public BigDecimal getUsuarioSaldo(String username){
+        BigDecimal result = new BigDecimal(-1.0);
         //Obtener el Saldo del usuario
         String query = "SELECT saldo FROM usuarios WHERE alias = ?";
         try{
@@ -64,12 +66,12 @@ public class UsuarioDao {
             preparedStatement.setString(1, username);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                result = resultSet.getDouble("saldo");
+                result = resultSet.getBigDecimal("saldo");
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return result;
+        return result.setScale(2, RoundingMode.HALF_UP);
     }
 
     public String getUsuarioNombre(String username){
@@ -89,12 +91,12 @@ public class UsuarioDao {
         return result;
     }
 
-    public void actualizarSaldo(int usuarioId, double saldo){
+    public void actualizarSaldo(int usuarioId, BigDecimal saldo){
         String query_update = "UPDATE usuarios SET saldo = ? WHERE id = ?;";
         
         try{
                 PreparedStatement preparedStatement2 = connection.prepareStatement(query_update);
-                preparedStatement2.setDouble(1, saldo);
+                preparedStatement2.setBigDecimal(1, saldo);
                 preparedStatement2.setInt(2, usuarioId);
                 preparedStatement2.executeUpdate();
             } catch (Exception e) {

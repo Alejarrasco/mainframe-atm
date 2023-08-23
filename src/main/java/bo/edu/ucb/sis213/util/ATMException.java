@@ -1,4 +1,4 @@
-package bo.edu.ucb.sis213.bl;
+package bo.edu.ucb.sis213.util;
 
 public class ATMException extends Exception {
     

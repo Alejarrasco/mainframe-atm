@@ -1,5 +1,6 @@
 package bo.edu.ucb.sis213.dao;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
@@ -18,7 +19,7 @@ public class HistoricoDao {
         }
     }
 
-    public void actualizarHistorico(int usuarioId, double cantidad, String operacion){
+    public void actualizarHistorico(int usuarioId, BigDecimal cantidad, String operacion){
         String query_insert = "INSERT INTO historico (usuario_id, tipo_operacion, cantidad) VALUES (?,?,?)";
 
         //Actualizar el historial en la BDD
@@ -26,7 +27,7 @@ public class HistoricoDao {
             PreparedStatement preparedStatement = connection.prepareStatement(query_insert);
             preparedStatement.setInt(1, usuarioId);
             preparedStatement.setString(2, operacion);
-            preparedStatement.setDouble(3, cantidad);
+            preparedStatement.setBigDecimal(3, cantidad);
             preparedStatement.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
